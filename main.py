@@ -133,6 +133,36 @@ _部分は空白
 最後の参加者の後にカンマは付けない
 ''')
 
+@bot.command(name='投票')
+async def vote(ctx, *, content: str):
+    try:
+        parts = content.split(',')
+        if len(parts) < 2:
+            await ctx.send("形式が正しくありません。例：!投票 好きな色は？,赤,青,緑")
+            return
+
+        question = parts[0].strip()
+        choices = [choice.strip() for choice in parts[1:]]
+
+        if len(choices) > 5:
+            await ctx.send("選択肢は最大5つまでです。")
+            return
+
+        emojis = ['🇦', '🇧', '🇨', '🇩', '🇪']
+
+        description = ""
+        for i, choice in enumerate(choices):
+            description += f"{emojis[i]} {choice}\n"
+
+        embed = discord.Embed(title=question, description=description, color=0x3498db)
+        message = await ctx.send(embed=embed)
+
+        for i in range(len(choices)):
+            await message.add_reaction(emojis[i])
+
+    except Exception as e:
+        await ctx.send(f"投票の作成に失敗しました: {e}")
+
 TOKEN = os.getenv("DISCORD_TOKEN")
 if TOKEN is None:
     raise ValueError("DISCORD_TOKEN が設定されていません。")
