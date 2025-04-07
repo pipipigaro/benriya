@@ -91,11 +91,11 @@ async def lottery3(ctx, participants: str, winners: int):
           if winners > len(participants_list):
               await ctx.send('当選数が参加者数を超えています。')
           else:
-          winner_list = random.sample(participants_list, winners)
-        winners_display = [
-            mention_dict.get(name.strip(), name.strip()) for name in winner_list
-        ]
-        winners_string = ', '.join(winners_display)
+              winner_list = random.sample(participants_list, winners)
+              winners_display = [
+                  mention_dict.get(name.strip(), name.strip()) for name in winner_list
+              ]
+              winners_string = ', '.join(winners_display)
               await ctx.send(f'キングダムスキル本→ {winners_string} 入札忘れずに！')
 
 @bot.command(name='王位スキル本')
@@ -106,10 +106,10 @@ async def lottery4(ctx, participants: str, winners: int):
               await ctx.send('当選数が参加者数を超えています。')
           else:
               winner_list = random.sample(participants_list, winners)
-        winners_display = [
-            mention_dict.get(name.strip(), name.strip()) for name in winner_list
-        ]
-        winners_string = ', '.join(winners_display)
+              winners_display = [
+                  mention_dict.get(name.strip(), name.strip()) for name in winner_list
+              ]
+              winners_string = ', '.join(winners_display)
               await ctx.send(f'王位スキル本→ {winners_string} 入札忘れずに！')
 
 @bot.command(name='ファイアブースト')
@@ -120,10 +120,10 @@ async def lottery5(ctx, participants: str, winners: int):
               await ctx.send('当選数が参加者数を超えています。')
           else:
               winner_list = random.sample(participants_list, winners)
-        winners_display = [
-            mention_dict.get(name.strip(), name.strip()) for name in winner_list
-        ]
-        winners_string = ', '.join(winners_display)
+              winners_display = [
+                  mention_dict.get(name.strip(), name.strip()) for name in winner_list
+              ]
+              winners_string = ', '.join(winners_display)
               await ctx.send(f'ファイアブースト→ {winners_string} 入札忘れずに！')
 
 @bot.command(name='ウッドブースト')
@@ -134,10 +134,10 @@ async def lottery6(ctx, participants: str, winners: int):
               await ctx.send('当選数が参加者数を超えています。')
           else:
               winner_list = random.sample(participants_list, winners)
-        winners_display = [
-            mention_dict.get(name.strip(), name.strip()) for name in winner_list
-        ]
-        winners_string = ', '.join(winners_display)
+              winners_display = [
+                  mention_dict.get(name.strip(), name.strip()) for name in winner_list
+              ]
+              winners_string = ', '.join(winners_display)
               await ctx.send(f'ウッドブースト→ {winners_string} 入札忘れずに！')
 
 @bot.command(name='抽選方法')
