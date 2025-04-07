@@ -16,14 +16,58 @@ async def hello(ctx):
 
 @bot.command(name='抽選')
 async def lottery1(ctx, participants: str, winners: int):
-          participants_list = participants.split(',')
-          participants = ', '.join(participants_list)  # リストを文字列に変換
-          if winners > len(participants_list):
-              await ctx.send('当選数が参加者数を超えています。')
-          else:
-              winner_list = random.sample(participants_list, winners)
-              winners_string = ', '.join(winner_list)
-              await ctx.send(f'当選者→ {winners_string} 入札忘れずに！')
+    # ニックネームとメンションIDの対応辞書
+    mention_dict = {
+        "えるる@SOP": "<@eruru9304>",
+        "ぽっちり": "<@pochiri.>",
+        "たらちゃん": "<@tarachan2493>",
+        "エチ": "<@echi1212>",
+        "はなみ": "<@hana7730>",
+        "ろーぜ・まいん": "<@nanamarupesi>",
+        "リアルん": "<@riarun_>",
+        "AYA1": "<@aya7214>",
+        "ピガロ": "<@_pigaro_>",
+        "銀之助22": "<@ginnosuke222>",
+        "狂風": "<@misheria_>",
+        "侑未": "<@umi.1234>",
+        "ルージェナ": "<@lu__jena>",
+        "はっちゃん8": "<@hacchan8>",
+        "燈花": "<@touka_2.28>",
+        "鏡音月華": "<@gettka22>",
+        "鬼Lua": "<@onmyojilua>",
+        "るちぁ": "<@rupa3003>",
+        "ライトネク": "<@raito_neku>",
+        "はどう": "<@hadou0321>",
+        "オリオンララ": "<@orionrara.>",
+        "Kombucha": "<@kombucha0269>",
+        "ハロベルト": "<@haroberuto>",
+        "マインハート": "<@mine_heart>",
+        "カールセフ": "<@karu0567>",
+        "えりあ": "<@eria_iry>",
+        "丹礼真": "<@kotonako1014>",
+        "セラニオコ": "<@seraniocco>",
+        "ジューンミナ": "<@junemina>",
+        "Perdita": "<@perdita8243>",
+        "もふにゃあ": "<@mo_funyaa>",
+        "シェルロート": "<@shell0053_50234>",
+        "ルゥ・チクク": "<@ruchiku>",
+        "エイトット": "<@tto20>"
+    }
+
+    participants_list = participants.split(',')
+    participants = ', '.join(participants_list)
+
+    if winners > len(participants_list):
+        await ctx.send('当選数が参加者数を超えています。')
+    else:
+        winner_list = random.sample(participants_list, winners)
+
+        # メンションIDが登録されていればメンションで、なければ名前のまま表示
+        winners_display = [
+            mention_dict.get(name.strip(), name.strip()) for name in winner_list
+        ]
+        winners_string = ', '.join(winners_display)
+        await ctx.send(f'当選者→ {winners_string} 入札忘れずに！')
 
 @bot.command(name='起死回生')
 async def lottery2(ctx, participants: str, winners: int):
