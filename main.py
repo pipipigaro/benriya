@@ -330,6 +330,7 @@ async def force_collect(ctx, message_id: int, category: str):
         await ctx.send(f"{category}の集計を実行しました。")
     except Exception as e:
         await ctx.send(f"集計処理中にエラーが発生しました: {e}")
+        
 async def process_votes(message, category):
     results = []
 
@@ -344,16 +345,16 @@ async def process_votes(message, category):
                 'timestamp': datetime.datetime.utcnow().isoformat()
             })
 
-    # スプレッドシートへの書き込み（例）
-    sheet = gc.open("【生】アンケート回答").sheet("【生】アンケート回答")
+    worksheet = gc.open("【生】アンケート回答").worksheet("【生】アンケート回答")
     for row in results:
-        sheet.append_rows([
+        # 👇 ここがポイント！
+        worksheet.append_row([
             row['timestamp'],
             row['category'],
             row['name'],
             row['answer']
         ], value_input_option='USER_ENTERED')
-
+        
 TOKEN = os.getenv("DISCORD_TOKEN")
 if TOKEN is None:
     raise ValueError("DISCORD_TOKEN が設定されていません。")
