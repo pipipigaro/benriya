@@ -2,9 +2,24 @@ import discord
 import os
 from discord.ext import commands
 import random
+import gspread
+from google.oauth2.service_account import Credentials
+import json
+import asyncio
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='!',intents=intents)
+# スプレッドシート設定
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+SPREADSHEET_NAME = '＊華灯＊管理表＊'
+SHEET_NAME = '【生】アンケート回答'
+
+# Google認証（Railwayの環境変数を使用）
+creds_json = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON")
+creds_dict = json.loads(creds_json)
+creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+gc = gspread.authorize(creds)
+sheet = gc.open(SPREADSHEET_NAME).worksheet(SHEET_NAME)
 
 mention_dict = {
     "えるる@SOP": "<@905502458413973544>",
@@ -41,7 +56,6 @@ mention_dict = {
     "エイトット": "<@878910220968026173>",
     "たまこちゃん": "<@831639349154152458>",
     "ぶらうんＪr": "<@966292802092806154>",
-    "たまこちゃん": "<@831639349154152458>",
     "まるぼろん": "<@715545687898587219>",
     "ローストびーふ": "<@887714463812304936>",
     "＊ぷんぷん丸＊": "<@1307207181577490495>",
@@ -55,6 +69,8 @@ mention_dict = {
 @bot.event
 async def on_ready():
     print('便利屋が到着しました。')
+    print(f'✅ Bot 起動完了: {bot.user}')
+    collect_votes.start()
 
 @bot.command()
 async def hello(ctx):
@@ -186,6 +202,104 @@ async def vote(ctx, *, content: str):
 
     except Exception as e:
         await ctx.send(f"投票の作成に失敗しました: {e}")
+
+@bot.command(name='侵攻戦')
+async def shinkou(ctx):
+    await create_poll(ctx, '侵攻戦')
+
+@bot.command(name='遺物')
+async def ibutsu(ctx):
+    await create_poll(ctx, '遺物')
+
+@bot.command(name='レイド')
+async def raid(ctx):
+    await create_poll(ctx, 'レイド')
+
+# 絵文字と選択肢の辞書
+EMOJI_OPTIONS = {'🇦': '参加', '🇧': '来れたら行く', '🇨': '不参加'}
+
+# 最新アンケートメッセージ追跡
+latest_messages = {}
+
+async def create_poll(ctx, category):
+    description = "\n".join([f"{emoji} {text}" for emoji, text in EMOJI_OPTIONS.items()])
+    embed = discord.Embed(title=f"{category}アンケート", description=description, color=0x3498db)
+    message = await ctx.send(embed=embed)
+
+    for emoji in EMOJI_OPTIONS:
+        await message.add_reaction(emoji)
+
+    latest_messages[category] = message.id
+
+@tasks.loop(minutes=180)
+async def collect_votes():
+    print("🔍 アンケート集計中...")
+    for category, message_id in latest_messages.items():
+        for guild in bot.guilds:
+            for channel in guild.text_channels:
+                try:
+                    message = await channel.fetch_message(message_id)
+                    await process_votes(message, category)
+                    break
+                except:
+                    continue
+
+async def process_votes(message, category):
+    vote_map = {}
+
+    for reaction in message.reactions:
+        if reaction.emoji in EMOJI_OPTIONS:
+            users = await reaction.users().flatten()
+            for user in users:
+                if user.bot:
+                    continue
+                vote_map[user.display_name] = EMOJI_OPTIONS[reaction.emoji]
+
+    data = sheet.get_all_values()
+    name_col = [row[0] for row in data]
+    col_index = {'侵攻戦': 1, '遺物': 2, 'レイド': 3}[category]
+
+    for name, answer in vote_map.items():
+        if name in name_col:
+            row_idx = name_col.index(name) + 1
+            sheet.update_cell(row_idx + 1, col_index + 1, answer)
+        else:
+            sheet.append_row([
+                name if category == '侵攻戦' else '',
+                answer if category == '侵攻戦' else '',
+                answer if category == '遺物' else '',
+                answer if category == 'レイド' else ''
+            ])
+
+@bot.command(name='レイドリセット')
+async def clear_raid(ctx):
+    data = sheet.get_all_values()
+    # 2行目以降のレイド列(3列目)を空文字で上書き
+    for i in range(2, len(data) + 1):
+        sheet.update_cell(i, 4, '')  # 4列目 = レイド列（インデックス+1なので注意）
+    await ctx.send("レイドのデータをクリアしました。")
+
+@bot.command(name='集計')
+async def force_collect(ctx, category: str):
+    category = category.strip()
+    if category not in ['侵攻戦', '遺物', 'レイド']:
+        await ctx.send("カテゴリは「侵攻戦」「遺物」「レイド」のいずれかで指定してください。")
+        return
+
+    if category not in latest_messages:
+        await ctx.send(f"{category}のアンケートメッセージが見つかりません。")
+        return
+
+    for guild in bot.guilds:
+        for channel in guild.text_channels:
+            try:
+                message = await channel.fetch_message(latest_messages[category])
+                await process_votes(message, category)
+                await ctx.send(f"{category}の集計を強制的に実行しました。")
+                return
+            except:
+                continue
+    await ctx.send(f"{category}のメッセージを取得できませんでした。")
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 if TOKEN is None:
