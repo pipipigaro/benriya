@@ -15,7 +15,7 @@ SPREADSHEET_NAME = '＊華灯＊管理表＊'
 SHEET_NAME = '【生】アンケート回答'
 
 # Google認証（Railwayの環境変数を使用）
-creds_json = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON")
+creds_json = os.environ.get("GOOGLE_SHEET_CREDENTIALS")
 creds_dict = json.loads(creds_json)
 creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
 gc = gspread.authorize(creds)
