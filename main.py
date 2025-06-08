@@ -7,6 +7,7 @@ from google.oauth2.service_account import Credentials
 import json
 import asyncio
 import datetime
+from gspread.exceptions import APIError
 
 # 👇 スコープはここにだけ定義！
 SCOPES = [
@@ -310,28 +311,31 @@ def clear_data_by_type(sheet, type_name):
     for row in new_rows:
         sheet.append_row(row)
 
+
+
 @bot.command(name='集計')
 async def force_collect(ctx, message_id: int, category: str):
-    await ctx.send(f"集計コマンド開始。メッセージID: {message_id}, カテゴリ: {category}")
+    await ctx.send(f"📊 集計コマンド開始：メッセージID={message_id}、カテゴリ={category}")
+    
     category = category.strip()
     if category not in ['侵攻戦', '遺物', 'レイド']:
-        await ctx.send("カテゴリは「侵攻戦」「遺物」「レイド」のいずれかで指定してください。")
+        await ctx.send("⚠️ カテゴリは「侵攻戦」「遺物」「レイド」のいずれかで指定してね。")
         return
 
     try:
         message = await ctx.channel.fetch_message(message_id)
-        await ctx.send("メッセージ取得成功。集計開始します。")
+        await ctx.send("✅ メッセージ取得成功、リアクション集計を開始するよ！")
     except Exception as e:
-        await ctx.send(f"メッセージを取得できませんでした: {e}")
+        await ctx.send(f"❌ メッセージ取得失敗: {e}")
         return
 
     try:
-        await process_votes(message, category)
-        await ctx.send(f"{category}の集計を実行しました。")
+        await process_votes(ctx, message, category)
+        await ctx.send(f"✅ {category}の集計が完了したよ！")
     except Exception as e:
-        await ctx.send(f"集計処理中にエラーが発生しました: {e}")
-        
-async def process_votes(message, category):
+        await ctx.send(f"❌ 集計処理中にエラーが発生: {e}")
+
+async def process_votes(ctx, message, category):
     results = []
 
     for reaction in message.reactions:
@@ -345,19 +349,34 @@ async def process_votes(message, category):
                 'timestamp': datetime.datetime.utcnow().isoformat()
             })
 
-    worksheet = gc.open("【生】アンケート回答").worksheet("【生】アンケート回答")
+    if not results:
+        await ctx.send("⚠️ 有効な投票が見つからなかったよ。")
+        return
+
+    worksheet = gc.open_by_key(SPREADSHEET_ID).worksheet(SHEET_NAME)
+
     for row in results:
         try:
-            # 👇 ここがポイント！
-            worksheet.append_row([
+            response = worksheet.append_row([
                 row['timestamp'],
                 row['category'],
                 row['name'],
                 row['answer']
             ], value_input_option='USER_ENTERED')
+            # 👇 念のためログ出力（Railwayのログで見える）
+            print(f"✅ 書き込み成功: {row}")
+
+            # スプレッドシートAPIの負荷対策
+            await asyncio.sleep(1)
+
+        except APIError as api_err:
+            print(f"❌ APIエラー: {api_err}")
+            await ctx.send(f"❌ 書き込み失敗（API）: {api_err}")
+
         except Exception as e:
-            print(f"書き込み失敗: {e}")
-            await message.channel.send(f"書き込み失敗: {e}")
+            print(f"❌ その他の書き込み失敗: {e}")
+            await ctx.send(f"❌ 書き込み失敗（その他）: {e}")
+
         
 TOKEN = os.getenv("DISCORD_TOKEN")
 if TOKEN is None:
