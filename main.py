@@ -314,6 +314,7 @@ def clear_data_by_type(sheet, type_name):
 
 @bot.command(name='集計')
 async def force_collect(ctx, message_id: int, category: str):
+    await ctx.send(f"集計コマンド開始。メッセージID: {message_id}, カテゴリ: {category}")
     category = category.strip()
     if category not in ['侵攻戦', '遺物', 'レイド']:
         await ctx.send("カテゴリは「侵攻戦」「遺物」「レイド」のいずれかで指定してください。")
@@ -321,12 +322,16 @@ async def force_collect(ctx, message_id: int, category: str):
 
     try:
         message = await ctx.channel.fetch_message(message_id)
+        await ctx.send("メッセージ取得成功。集計開始します。")
     except Exception as e:
         await ctx.send(f"メッセージを取得できませんでした: {e}")
         return
 
-    await process_votes(message, category)
-    await ctx.send(f"{category}の集計を実行しました。")
+    try:
+        await process_votes(message, category)
+        await ctx.send(f"{category}の集計を実行しました。")
+    except Exception as e:
+        await ctx.send(f"集計処理中にエラーが発生しました: {e}")
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 if TOKEN is None:
