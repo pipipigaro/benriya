@@ -8,6 +8,14 @@ import json
 import asyncio
 from discord.ext import commands, tasks
 
+SCOPES = [
+    'https://www.googleapis.com/auth/spreadsheets',
+    'https://www.googleapis.com/auth/drive'
+]
+
+creds = Credentials.from_service_account_file('path/to/credentials.json', scopes=SCOPES)
+gc = gspread.authorize(creds)
+sheet = gc.open(SPREADSHEET_NAME).worksheet(SHEET_NAME)
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='!',intents=intents)
