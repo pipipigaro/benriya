@@ -1,38 +1,35 @@
 import discord
 import os
-from discord.ext import commands
+from discord.ext import commands, tasks
 import random
 import gspread
 from google.oauth2.service_account import Credentials
 import json
 import asyncio
-from discord.ext import commands, tasks
 import datetime
 
+# 👇 スコープはここにだけ定義！
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
 ]
+
+# 👇 スプレッドシート設定
 SPREADSHEET_NAME = '＊華灯＊管理表＊'
 SHEET_NAME = '【生】アンケート回答'
 SPREADSHEET_ID = '1mR1eTIdL6X_TrEljohV6mtFuupabNRxt1RloKH42gsQ'
 
+# 👇 Railway環境変数からGoogle認証
 service_account_info = json.loads(os.environ["GOOGLE_SHEET_CREDENTIALS"])
 creds = Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
 gc = gspread.authorize(creds)
-sheet = gc.open(SPREADSHEET_NAME).worksheet(SHEET_NAME)
 
-intents = discord.Intents.all()
-bot = commands.Bot(command_prefix='!',intents=intents)
-# スプレッドシート設定
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-
-# Google認証（Railwayの環境変数を使用）
-creds_json = os.environ.get("GOOGLE_SHEET_CREDENTIALS")
-creds_dict = json.loads(creds_json)
-creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
-gc = gspread.authorize(creds)
+# 👇 スプレッドシート接続（どっちでもOKだけど、open_by_keyの方が安定）
 sheet = gc.open_by_key(SPREADSHEET_ID).worksheet(SHEET_NAME)
+
+# 👇 Discord Bot 初期化
+intents = discord.Intents.all()
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 mention_dict = {
     "えるる@SOP": "<@905502458413973544>",
