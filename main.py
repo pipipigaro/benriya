@@ -347,17 +347,17 @@ async def process_votes(message, category):
 
     worksheet = gc.open("【生】アンケート回答").worksheet("【生】アンケート回答")
     for row in results:
-        # 👇 ここがポイント！
         try:
-    worksheet.append_row([
-        row['timestamp'],
-        row['category'],
-        row['name'],
-        row['answer']
-    ], value_input_option='USER_ENTERED')
-except Exception as e:
-    print(f"書き込み失敗: {e}")
-    await message.channel.send(f"書き込み失敗: {e}")
+            # 👇 ここがポイント！
+            worksheet.append_row([
+                row['timestamp'],
+                row['category'],
+                row['name'],
+                row['answer']
+            ], value_input_option='USER_ENTERED')
+        except Exception as e:
+            print(f"書き込み失敗: {e}")
+            await message.channel.send(f"書き込み失敗: {e}")
         
 TOKEN = os.getenv("DISCORD_TOKEN")
 if TOKEN is None:
