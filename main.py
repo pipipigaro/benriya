@@ -348,9 +348,9 @@ async def process_votes(message, category):
             })
 
     # スプレッドシートへの書き込み（例）
-    worksheet = gc.open("【生】アンケート回答").worksheet("【生】アンケート回答")
+    sheet = gc.open("【生】アンケート回答").sheet("【生】アンケート回答")
     for row in results:
-        worksheet.append_row([
+        sheet.append_rows([
             row['timestamp'],
             row['category'],
             row['name'],
