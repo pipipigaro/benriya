@@ -313,26 +313,20 @@ def clear_data_by_type(sheet, type_name):
         sheet.append_row(row)
 
 @bot.command(name='集計')
-async def force_collect(ctx, category: str):
+async def force_collect(ctx, message_id: int, category: str):
     category = category.strip()
     if category not in ['侵攻戦', '遺物', 'レイド']:
         await ctx.send("カテゴリは「侵攻戦」「遺物」「レイド」のいずれかで指定してください。")
         return
 
-    if category not in latest_messages:
-        await ctx.send(f"{category}のアンケートメッセージが見つかりません。")
+    try:
+        message = await ctx.channel.fetch_message(message_id)
+    except Exception as e:
+        await ctx.send(f"メッセージを取得できませんでした: {e}")
         return
 
-    for guild in bot.guilds:
-        for channel in guild.text_channels:
-            try:
-                message = await channel.fetch_message(latest_messages[category])
-                await process_votes(message, category)
-                await ctx.send(f"{category}の集計を実行しました。")
-                return
-            except:
-                continue
-    await ctx.send(f"{category}のメッセージを取得できませんでした。")
+    await process_votes(message, category)
+    await ctx.send(f"{category}の集計を実行しました。")
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 if TOKEN is None:
