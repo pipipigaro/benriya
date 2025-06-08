@@ -31,7 +31,7 @@ creds_json = os.environ.get("GOOGLE_SHEET_CREDENTIALS")
 creds_dict = json.loads(creds_json)
 creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
 gc = gspread.authorize(creds)
-sheet = gc.open(SPREADSHEET_NAME).worksheet(SHEET_NAME)
+sheet = gc.open_by_key(SPREADSHEET_ID).worksheet(SHEET_NAME)
 
 mention_dict = {
     "えるる@SOP": "<@905502458413973544>",
