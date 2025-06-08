@@ -10,8 +10,8 @@ from discord.ext import commands, tasks
 import datetime
 
 SCOPES = [
-    'https://www.googleapis.com/auth/spreadsheets',
-    'https://www.googleapis.com/auth/drive'
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
 ]
 SPREADSHEET_NAME = '＊華灯＊管理表＊'
 SHEET_NAME = '【生】アンケート回答'
