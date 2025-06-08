@@ -7,6 +7,7 @@ from google.oauth2.service_account import Credentials
 import json
 import asyncio
 from discord.ext import commands, tasks
+import datetime
 
 SCOPES = [
     'https://www.googleapis.com/auth/spreadsheets',
@@ -332,6 +333,29 @@ async def force_collect(ctx, message_id: int, category: str):
         await ctx.send(f"{category}の集計を実行しました。")
     except Exception as e:
         await ctx.send(f"集計処理中にエラーが発生しました: {e}")
+async def process_votes(message, category):
+    results = []
+
+    for reaction in message.reactions:
+        async for user in reaction.users():
+            if user.bot:
+                continue
+            results.append({
+                'name': user.name,
+                'answer': reaction.emoji,
+                'category': category,
+                'timestamp': datetime.datetime.utcnow().isoformat()
+            })
+
+    # スプレッドシートへの書き込み（例）
+    worksheet = gc.open("【生】アンケート回答").worksheet("【生】アンケート回答")
+    for row in results:
+        worksheet.append_row([
+            row['timestamp'],
+            row['category'],
+            row['name'],
+            row['answer']
+        ])
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 if TOKEN is None:
