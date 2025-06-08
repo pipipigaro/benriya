@@ -12,6 +12,8 @@ SCOPES = [
     'https://www.googleapis.com/auth/spreadsheets',
     'https://www.googleapis.com/auth/drive'
 ]
+SPREADSHEET_NAME = '＊華灯＊管理表＊'
+SHEET_NAME = '【生】アンケート回答'
 
 service_account_info = json.loads(os.environ["GOOGLE_SHEET_CREDENTIALS"])
 creds = Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
@@ -22,8 +24,6 @@ intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='!',intents=intents)
 # スプレッドシート設定
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-SPREADSHEET_NAME = '＊華灯＊管理表＊'
-SHEET_NAME = '【生】アンケート回答'
 
 # Google認証（Railwayの環境変数を使用）
 creds_json = os.environ.get("GOOGLE_SHEET_CREDENTIALS")
