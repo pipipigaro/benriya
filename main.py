@@ -6,6 +6,8 @@ import gspread
 from google.oauth2.service_account import Credentials
 import json
 import asyncio
+from discord.ext import commands, tasks
+
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='!',intents=intents)
@@ -270,14 +272,35 @@ async def process_votes(message, category):
                 answer if category == '遺物' else '',
                 answer if category == 'レイド' else ''
             ])
+            
+@bot.command(name='リセット')
+async def reset_data(ctx, type_name: str):
+    valid_types = ["侵攻戦", "遺物", "レイド"]
+    if type_name not in valid_types:
+        await ctx.send(f"無効な種類だよ！指定できるのは：{', '.join(valid_types)}")
+        return
 
-@bot.command(name='レイドリセット')
-async def clear_raid(ctx):
-    data = sheet.get_all_values()
-    # 2行目以降のレイド列(3列目)を空文字で上書き
-    for i in range(2, len(data) + 1):
-        sheet.update_cell(i, 4, '')  # 4列目 = レイド列（インデックス+1なので注意）
-    await ctx.send("レイドのデータをクリアしました。")
+    col_index = {'侵攻戦': 2, '遺物': 3, 'レイド': 4}[type_name]  
+
+    all_data = sheet.get_all_values()
+    
+    for row_idx in range(2, len(all_data)+1):
+        sheet.update_cell(row_idx, col_index, '')
+
+    await ctx.send(f"{type_name}のデータをリセットしました。")
+    
+def clear_data_by_type(sheet, type_name):
+    all_data = sheet.get_all_values()
+    headers = all_data[0]
+    rows = all_data[1:]
+
+    # 種類の列（headers[1]）がtype_nameと一致する行を除外する
+    new_rows = [row for row in rows if len(row) < 2 or row[1] != type_name]
+
+    sheet.clear()
+    sheet.append_row(headers)
+    for row in new_rows:
+        sheet.append_row(row)
 
 @bot.command(name='集計')
 async def force_collect(ctx, category: str):
@@ -295,7 +318,7 @@ async def force_collect(ctx, category: str):
             try:
                 message = await channel.fetch_message(latest_messages[category])
                 await process_votes(message, category)
-                await ctx.send(f"{category}の集計を強制的に実行しました。")
+                await ctx.send(f"{category}の集計を実行しました。")
                 return
             except:
                 continue
