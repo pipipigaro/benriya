@@ -14,6 +14,7 @@ SCOPES = [
 ]
 SPREADSHEET_NAME = '＊華灯＊管理表＊'
 SHEET_NAME = '【生】アンケート回答'
+SPREADSHEET_ID = '1mR1eTIdL6X_TrEljohV6mtFuupabNRxt1RloKH42gsQ'
 
 service_account_info = json.loads(os.environ["GOOGLE_SHEET_CREDENTIALS"])
 creds = Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
