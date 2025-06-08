@@ -352,7 +352,7 @@ async def process_votes(message, category):
             row['category'],
             row['name'],
             row['answer']
-        ])
+        ], value_input_option='USER_ENTERED')
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 if TOKEN is None:
