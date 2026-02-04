@@ -419,7 +419,7 @@ async def reset_nickname(ctx, member: discord.Member):
         true_name = member.global_name or member.name
 
         await ctx.send(
-            f"🐉　**{before_name}** の本当の名前は **{true_name}** だ！！"
+            f"🐉**{before_name}** の本当の名前は **{true_name}** だ！！"
         )
 
     except discord.Forbidden:
