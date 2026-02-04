@@ -380,12 +380,19 @@ async def process_votes(ctx, message, category):
 from discord.ext import commands
 import discord
 
+from discord.ext import commands
+import discord
+
 @bot.command(name="名前")
 @commands.has_permissions(manage_nicknames=True)
 async def change_nickname(ctx, member: discord.Member, *, new_name: str):
+    before_name = member.display_name  # ← 追加（変更前の名前）
+
     try:
         await member.edit(nick=new_name)
-        await ctx.send(f"✅ {member.mention} ？贅沢な名だねぇ。今日からお前は「{new_name}」だよ！！")
+        await ctx.send(
+            f"✅ **{before_name}** ？贅沢な名だねぇ。今日からお前は「{new_name}」だよ！！"
+        )
     except discord.Forbidden:
         await ctx.send("❌ 権限が足りなくて変更できなかった…（Botのロール位置確認してね）")
     except discord.HTTPException:
