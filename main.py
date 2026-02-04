@@ -404,6 +404,22 @@ async def change_nickname_error(ctx, error):
         await ctx.send("❌ ニックネーム管理権限がないよ")
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("使い方：`!名前 @メンバー 新しい名前`")
+
+@bot.command(name="名前返還")
+@commands.has_permissions(manage_nicknames=True)
+async def reset_nickname(ctx, member: discord.Member):
+    try:
+        await member.edit(nick=None)
+
+        # @を文字として付ける（メンションにはならない）
+        await ctx.send(
+            f"@{member.name} の本当の名前はユーザー名だ！！"
+        )
+
+    except discord.Forbidden:
+        await ctx.send("❌ 権限が足りなくて戻せなかった…")
+    except discord.HTTPException:
+        await ctx.send("❌ ニックネームのリセットに失敗したよ")
         
 TOKEN = os.getenv("DISCORD_TOKEN")
 if TOKEN is None:
