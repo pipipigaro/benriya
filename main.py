@@ -377,6 +377,26 @@ async def process_votes(ctx, message, category):
             print(f"❌ その他の書き込み失敗: {e}")
             await ctx.send(f"❌ 書き込み失敗（その他）: {e}")
 
+from discord.ext import commands
+import discord
+
+@bot.command(name="名前")
+@commands.has_permissions(manage_nicknames=True)
+async def change_nickname(ctx, member: discord.Member, *, new_name: str):
+    try:
+        await member.edit(nick=new_name)
+        await ctx.send(f"✅ {member.mention} のニックネームを「{new_name}」に変更したよ")
+    except discord.Forbidden:
+        await ctx.send("❌ 権限が足りなくて変更できなかった…（Botのロール位置確認してね）")
+    except discord.HTTPException:
+        await ctx.send("❌ ニックネームの変更に失敗したよ")
+
+@change_nickname.error
+async def change_nickname_error(ctx, error):
+    if isinstance(error, commands.MissingPermissions):
+        await ctx.send("❌ ニックネーム管理権限がないよ")
+    elif isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("使い方：`!名前 @メンバー 新しい名前`")
         
 TOKEN = os.getenv("DISCORD_TOKEN")
 if TOKEN is None:
