@@ -391,7 +391,7 @@ async def change_nickname(ctx, member: discord.Member, *, new_name: str):
     try:
         await member.edit(nick=new_name)
         await ctx.send(
-            f"✅ **{before_name}** ？贅沢な名だねぇ。今日からお前は「{new_name}」だよ！！"
+            f"👵 **{before_name}** ？贅沢な名だねぇ。今日からお前は「{new_name}」だよ！！"
         )
     except discord.Forbidden:
         await ctx.send("❌ 権限が足りなくて変更できなかった…（Botのロール位置確認してね）")
@@ -408,12 +408,18 @@ async def change_nickname_error(ctx, error):
 @bot.command(name="名前返還")
 @commands.has_permissions(manage_nicknames=True)
 async def reset_nickname(ctx, member: discord.Member):
+    # 返還前の名前（例：今日だけ魔王）
+    before_name = member.display_name
+
     try:
+        # ニックネーム解除
         await member.edit(nick=None)
 
-        # @を文字として付ける（メンションにはならない）
+        # 本当の名前（グローバル表示名優先）
+        true_name = member.global_name or member.name
+
         await ctx.send(
-            f"@{member.name} の本当の名前はユーザー名だ！！"
+            f"🐉　**{before_name}** の本当の名前は **{true_name}** だ！！"
         )
 
     except discord.Forbidden:
