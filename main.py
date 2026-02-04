@@ -385,7 +385,7 @@ import discord
 async def change_nickname(ctx, member: discord.Member, *, new_name: str):
     try:
         await member.edit(nick=new_name)
-        await ctx.send(f"✅ {member.mention} のニックネームを「{new_name}」に変更したよ")
+        await ctx.send(f"✅ {member.mention} ？贅沢な名だねぇ。今日からお前は「{new_name}」だよ！！")
     except discord.Forbidden:
         await ctx.send("❌ 権限が足りなくて変更できなかった…（Botのロール位置確認してね）")
     except discord.HTTPException:
